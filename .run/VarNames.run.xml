@@ -1,0 +1,25 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="VarNames" type="PythonConfigurationType" factoryName="Python">
+    <module name="aigrep" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+      <env name="PYTHONASYNCIODEBUG" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/aigrep" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/aigrep/cli.py" />
+    <option name="PARAMETERS" value="-v -w 500 -V json -s &quot;List the name of all variables used in methods and functions. Include all member variables, arguments and local variables. Write the names as a JSON list. List each variable only once. Write the JSON on a single line. Do NOT pretty format the JSON. Do NOT include expressions or statements, only the variable names. Do NOT write anything else. Do NOT apoligize. Do NOT explain.&quot; processor.py" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="MODULE_MODE" value="false" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+</component>

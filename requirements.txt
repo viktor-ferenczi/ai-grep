@@ -1,3 +1,4 @@
 vllm_client
-pyyaml
+toml
+PyYAML
 tiktoken
