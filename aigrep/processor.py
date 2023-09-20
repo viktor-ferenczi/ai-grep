@@ -62,9 +62,6 @@ class Processor:
         if self.args.temperature is not None:
             self.params.temperature = self.args.temperature
 
-        self.mimetypes: Optional[Set[str]] = set(self.args.mimetypes.split(',')) if self.args.mimetypes else None
-        self.rx_include: re.Pattern = re.compile(self.args.include) if self.args.include else None
-        self.rx_exclude: re.Pattern = re.compile(self.args.exclude) if self.args.exclude else None
         self.rx_regexp: re.Pattern = re.compile(self.args.regexp) if self.args.regexp else None
 
         self.parallel: int = max(1, self.args.parallel or self.model.cfg.parallel)
@@ -330,20 +327,17 @@ class Processor:
             self.log_debug('SKIP_NOT_A_FILE', path=path)
             return False
 
-        if self.mimetypes is not None:
-            if mimetypes.guess_type(path) not in self.mimetypes:
-                self.log_debug('SKIP_NOT_IN_MIMETYPES', path=path)
+        if self.args.mimetypes:
+            mimetype = mimetypes.guess_type(path)
+            if mimetype not in self.args.mimetypes:
+                self.log_debug('SKIP_NOT_IN_MIMETYPES', path=path, mimetype=mimetype)
                 return False
 
-        if self.rx_include is not None:
-            if self.rx_include.match(path) is None:
-                self.log_debug('SKIP_NOT_IN_INCLUDE', path=path)
-                return False
-
-        if self.rx_exclude is not None:
-            if self.rx_exclude.match(path) is not None:
-                self.log_debug('SKIP_IN_EXCLUDE', path=path)
-                return False
+        if self.args.exclude:
+            for pattern in self.args.exclude:
+                if fnmatch.fnmatch(path, pattern):
+                    self.log_debug('SKIP_IN_EXCLUDE', path=path, pattern=pattern)
+                    return False
 
         if sys.platform != 'win32':
             if not os.access(path, os.R_OK, follow_symlinks=self.args.follow):
