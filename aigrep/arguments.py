@@ -51,7 +51,6 @@ class ArgsNamespace(Namespace):
     recursive: bool
     follow: bool
     exclude: List[str]
-    mimetypes: List[str]
 
     paths: List[str]
 
@@ -103,7 +102,6 @@ def create_argument_parser():
     g.add_argument('--recursive', '-r', action='store_true', help='Recursive directory traversal')
     g.add_argument('--follow', '-L', action='store_true', help='Follow symlinks')
     g.add_argument('--exclude', '-X', nargs='*', help='Exclude files matching any of these glob patterns (can be multiple)')
-    g.add_argument('--mimetypes', '-Y', nargs='*', help='Process only files with any of the listed mime types (can be multiple)')
 
     parser.add_argument('paths', metavar='PATHS', nargs='*', help="Files or folders to process, can contain glob patterns (stdin if none given)")
 

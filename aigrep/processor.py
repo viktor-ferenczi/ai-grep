@@ -327,12 +327,6 @@ class Processor:
             self.log_debug('SKIP_NOT_A_FILE', path=path)
             return False
 
-        if self.args.mimetypes:
-            mimetype = mimetypes.guess_type(path)
-            if mimetype not in self.args.mimetypes:
-                self.log_debug('SKIP_NOT_IN_MIMETYPES', path=path, mimetype=mimetype)
-                return False
-
         if self.args.exclude:
             for pattern in self.args.exclude:
                 if fnmatch.fnmatch(path, pattern):
