@@ -21,14 +21,6 @@ def count_tokens(text: str) -> int:
     return len(tokens)
 
 
-def log(event: str, **kws):
-    print(format_event(event, **kws))
-
-
-def format_event(event: str, **kws) -> str:
-    return f"#AIGREP:{json.dumps(dict(event=event, **kws))}"
-
-
 def extract_code_block(text: str, format: str) -> str:
     st = text.strip()
     stlc = st.lower()

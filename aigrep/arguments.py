@@ -13,8 +13,7 @@ Do NOT judge. \
 Do NOT apologise. \
 Do NOT refer to your knowledge cut-off date.'''
 
-DEFAULT_HEADER = '#AIGREP_RESULT(index={index!r}, path={path!r}, lineno={lineno!r}, lines={lines!r}, attempt={attempt!r})'
-DEFAULT_FAILED = '#AIGREP_FAILED(index={index!r}, path={path!r}, lineno={lineno!r}, lines={lines!r}, attempt={attempt!r})'
+DEFAULT_FORMAT = '#AIGREP:%s'
 
 
 class ArgsNamespace(Namespace):
@@ -22,27 +21,26 @@ class ArgsNamespace(Namespace):
     config: str
     info: bool
     write: bool
+    json: bool
+    format: str
 
     model: str
     test: bool
     dry: bool
     budget: int
     abort: int
+    parallel: int
 
     system: str
     system_file: str
     window: int
     max_tokens: int
     temperature: float
-    parallel: int
 
     validate: str
     regexp: str
     attempts: int
     number: int
-
-    header: str
-    failed: str
 
     encoding: str
     chunk: int
@@ -67,6 +65,8 @@ def create_argument_parser():
     g.add_argument('--config', '-c', default=DEFAULT_CONFIG_PATH, help='Path to the config file')
     g.add_argument('--info', '-i', action='store_true', help='List all configured models and exit')
     g.add_argument('--write', '-W', action='store_true', help='Write the default configuration and exit (does not overwrite)')
+    g.add_argument('--json', '-J', action='store_true', help='Produce only machine parseable JSONL output')
+    g.add_argument('--format', '-F', default=DEFAULT_FORMAT, help='Python format string for the verbose output lines')
 
     g = parser.add_argument_group('Language model')
     g.add_argument('--model', '-m', help='ID of the model to use (defaults to the first one configured)')
@@ -74,6 +74,7 @@ def create_argument_parser():
     g.add_argument('--dry', '-y', action='store_true', help='Dry run (do not use the LLM, provide UNDEFINED results)')
     g.add_argument('--budget', '-B', type=int, help='Maximum tokens to use in total')
     g.add_argument('--abort', '-A', type=int, help='Abort after producing this many outputs')
+    g.add_argument('--parallel', '-P', type=int, help='Maximum number of parallel generations (overrides model config)')
 
     g = parser.add_argument_group('Prompt and generation')
     g.add_argument('--system', '-s', default=DEFAULT_SYSTEM, help="System prompt (the default one summarizes the text)")
@@ -81,17 +82,12 @@ def create_argument_parser():
     g.add_argument('--window', '-w', type=int, help='Context window size (overrides model config)')
     g.add_argument('--max-tokens', '-M', type=int, help='Maximum tokens to generate (overrides calculated default)')
     g.add_argument('--temperature', '-T', type=float, help='Temperature (overrides model config)')
-    g.add_argument('--parallel', '-P', type=int, help='Maximum number of parallel generations (overrides model config)')
 
     g = parser.add_argument_group('Validation and retries')
     g.add_argument('--validate', '-V', help='Validate the output of the LLM: json, yaml, toml, csv (keeps the first valid output)')
     g.add_argument('--regexp', '-e', help='Python regexp to validate LLM output (keeps the first matching output)')
     g.add_argument('--attempts', '-a', type=int, default=1, help='Maximum number of generation attempts to get a valid result (multiplied by --multi)')
-    g.add_argument('--number', '-n', type=int, default=1, help='Number of generations per chunk (useful with --regexp)')
-
-    g = parser.add_argument_group('Output formatting')
-    g.add_argument('--header', '-H', default=DEFAULT_HEADER, help='Format string of the valid chunk output header')
-    g.add_argument('--failed', '-F', default=DEFAULT_FAILED, help='Format string for the invalid chunk output marker')
+    g.add_argument('--number', '-n', type=int, default=1, help='Number of generations per attempt (useful with --regexp)')
 
     g = parser.add_argument_group('Reading and chunking text')
     g.add_argument('--encoding', '-E', default='utf-8', help='Character encoding of all the files')

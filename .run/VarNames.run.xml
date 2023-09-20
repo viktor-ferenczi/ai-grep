@@ -14,7 +14,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/aigrep/cli.py" />
-    <option name="PARAMETERS" value="-vv -r -w 500 -V json -X ./venv/** -s &quot;List the name of all variables used in methods and functions. Include all member variables, arguments and local variables. Write the names as a JSON list. List each variable only once. Write the JSON on a single line. Do NOT pretty format the JSON. Do NOT include expressions or statements, only the variable names. Do NOT write anything else. Do NOT apoligize. Do NOT explain.&quot; *.py" />
+    <option name="PARAMETERS" value="-v -r -w 500 -V json -X ./venv/** -s &quot;List the name of all variables used in methods and functions. Include all member variables, arguments and local variables. Write the names as a JSON list. List each variable only once. Write the JSON on a single line. Do NOT pretty format the JSON. Do NOT include expressions or statements, only the variable names. Do NOT write anything else. Do NOT apoligize. Do NOT explain.&quot; *.py" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

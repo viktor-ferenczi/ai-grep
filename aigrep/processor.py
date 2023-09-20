@@ -1,7 +1,6 @@
 import asyncio
 import fnmatch
 import json
-import mimetypes
 import os.path
 import re
 import sys
@@ -15,7 +14,7 @@ from vllm_client.sampling_params import SamplingParams
 
 from aigrep.config import Config
 from aigrep.model import Model
-from aigrep.utils import count_tokens, log, extract_code_block
+from aigrep.utils import count_tokens, extract_code_block
 from arguments import ArgsNamespace
 
 
@@ -82,13 +81,18 @@ class Processor:
         self.verbose = self.args.verbose > 0
         self.debug = self.args.verbose > 1
 
+        self.log_format = '%s' if self.args.json else self.args.format
+
+    def log_event(self, event: str, **kws):
+        print(self.log_format % json.dumps(dict(event=event, **kws)))
+
     def log_verbose(self, event: str, **kws):
         if self.verbose:
-            log(event, **kws)
+            self.log_event(event, **kws)
 
     def log_debug(self, event: str, **kws):
         if self.debug:
-            log(event, **kws)
+            self.log_event(event, **kws)
 
     def check_finished(self, results):
         if self.finished_reading and not self.generation_count and not results and self.input_queue.empty() and self.output_queue.empty():
@@ -176,16 +180,17 @@ class Processor:
             results[chunk.index - first_index] = chunk
 
             while not self.abort and results and results[0]:
-                result = results.pop(0)
+                result: Chunk = results.pop(0)
                 first_index += 1
 
                 if result.successful:
-                    if self.verbose:
-                        print(self.args.header.format(**asdict(result)))
-                    print(result.output)
+                    self.log_verbose('OUTPUT', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
+                    if self.args.json:
+                        self.log_event('OUTPUT', **asdict(result))
+                    else:
+                        print(result.output)
                 else:
-                    if self.verbose:
-                        print(self.args.failed.format(**asdict(result)))
+                    self.log_verbose('FAILED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
 
                 print_count += 1
                 if abort_at is not None and print_count >= abort_at:
@@ -247,9 +252,7 @@ class Processor:
 
         if self.rx_regexp is not None:
             if self.rx_regexp.match(text) is None:
-                self.log_debug('SKIP_NOT_MATCHING_REGEXP')
-                if self.debug:
-                    print(text)
+                self.log_validation_error('SKIP_NOT_MATCHING_REGEXP', text)
                 return text, False
 
         validate = self.args.validate
@@ -260,9 +263,7 @@ class Processor:
             try:
                 json.loads(normalized)
             except json.JSONDecodeError:
-                self.log_debug('SKIP_INVALID_JSON')
-                if self.debug:
-                    print(text)
+                self.log_validation_error('SKIP_INVALID_JSON', text)
                 return original, False
             return normalized, True
         elif validate == 'yaml':
@@ -270,9 +271,7 @@ class Processor:
             try:
                 yaml.safe_load(normalized)
             except yaml.YAMLError:
-                self.log_debug('SKIP_INVALID_YAML')
-                if self.debug:
-                    print(text)
+                self.log_validation_error('SKIP_INVALID_YAML', text)
                 return original, False
             return normalized, True
         elif validate == 'toml':
@@ -280,9 +279,7 @@ class Processor:
             try:
                 toml.loads(normalized)
             except toml.TomlDecodeError:
-                self.log_debug('SKIP_INVALID_TOML')
-                if self.debug:
-                    print(text)
+                self.log_validation_error('SKIP_INVALID_TOML', text)
                 return original, False
             return normalized, True
         else:
@@ -290,6 +287,17 @@ class Processor:
             sys.exit(1)
 
         return original, True
+
+    def log_validation_error(self, event: str, text: str):
+        if not self.debug:
+            return
+
+        if self.args.json:
+            self.log_event(event, text=text)
+            return
+
+        self.log_event(event)
+        print(text)
 
     def find_files(self) -> Iterable[str]:
         for path in self.args.paths:
