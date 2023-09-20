@@ -52,6 +52,34 @@ Modify the configuration as needed.
 
 You can also refer to a different configuration file: `-c your/config.toml`
 
+## Backend
+
+### vLLM
+
+To start a vLLM server on `localhost:8000`:
+
+```sh
+python -O -u -m vllm.entrypoints.api_server \
+    --host=127.0.0.1 \
+    --port=8000 \
+    --model=WizardLM/WizardCoder-Python-7B-V1.0 \
+    --tokenizer=hf-internal-testing/llama-tokenizer \
+    --block-size=16 \
+    --swap-space=8
+```
+
+Change the model and the parameters to match your GPU and specific use case.
+
+To load the model into multiple (N) GPUs:
+```
+--tensor-parallel-size=N
+```
+
+To use a local folder with an already downloaded model:
+```
+--model=$HOME/models/WizardLM/WizardCoder-Python-7B-V1.0
+```
+
 ## Library usage
 
 TBD: Refactor the code to be usable as a library.

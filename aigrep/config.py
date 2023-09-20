@@ -14,8 +14,7 @@ class ModelConfig:
 
     # LLM engine
     provider: str = 'vllm'
-    # address: str = 'http://127.0.0.1:8000/generate'
-    address: str = 'http://192.168.1.10:8000/generate'
+    address: str = 'http://127.0.0.1:8000/generate'
 
     # Context and performance limits
     context: int = 4096
