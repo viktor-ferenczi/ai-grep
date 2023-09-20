@@ -18,8 +18,6 @@ DEFAULT_FAILED = '#AIGREP_FAILED(index={index!r}, path={path!r}, lineno={lineno!
 
 
 class ArgsNamespace(Namespace):
-    paths: List[str]
-
     verbose: int
     config: str
     info: bool
@@ -51,16 +49,20 @@ class ArgsNamespace(Namespace):
     overlap: int
 
     recursive: bool
-    mimetypes: str
-    glob: str
+    follow: bool
     include: str
     exclude: str
-    follow: bool
+    mimetypes: str
+
+    paths: List[str]
+
+    @classmethod
+    def from_args(cls, ns: Namespace) -> 'ArgsNamespace':
+        return cls(**vars(ns))
 
 
 def create_argument_parser():
     parser = ArgumentParser()
-    parser.add_argument('paths', metavar='PATHS', nargs='*', help="Files or folders to process, can contain glob patterns (stdin if none given)")
 
     g = parser.add_argument_group('Configuration')
     g.add_argument('--verbose', '-v', action='count', default=0, help='Verbose output (-vv for debug)')
@@ -99,11 +101,12 @@ def create_argument_parser():
     g.add_argument('--overlap', '-l', type=int, default=0, help='Text chunk overlap in tokens (approximate)')
 
     g = parser.add_argument_group('Filesystem traversal')
-    g.add_argument('--recursive', '-r', action='store_true', help='Recurse into subdirectories')
-    g.add_argument('--mimetypes', '-Y', help='Filter files by their mime type (comma separated list)')
-    g.add_argument('--glob', '-G', help='Glob pattern to filter the listed files with')
+    g.add_argument('--recursive', '-r', action='store_true', help='Recursive directory traversal')
+    g.add_argument('--follow', '-L', action='store_true', help='Follow symlinks')
     g.add_argument('--include', '-I', help='Python regexp pattern to filter files by path')
     g.add_argument('--exclude', '-X', help='Python regexp pattern to exclude files by path')
-    g.add_argument('--follow', '-L', action='store_true', help='Follow symlinks')
+    g.add_argument('--mimetypes', '-Y', help='Filter files by their mime type (comma separated list)')
+
+    parser.add_argument('paths', metavar='PATHS', nargs='*', help="Files or folders to process, can contain glob patterns (stdin if none given)")
 
     return parser

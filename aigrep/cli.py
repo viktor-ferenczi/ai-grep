@@ -2,6 +2,7 @@
 import asyncio
 import os.path
 import sys
+from argparse import Namespace
 from typing import Tuple
 
 from aigrep.config import Config, DEFAULT_CONFIG, ModelConfig
@@ -62,7 +63,7 @@ async def run(args: ArgsNamespace):
     model = load_model(args, cfg)
 
     if args.test:
-        if not asyncio.run(model.test()):
+        if not await model.test():
             print('FAILED')
             sys.exit(1)
         print('OK')
@@ -75,8 +76,8 @@ async def run(args: ArgsNamespace):
 
 def main():
     argument_parser = create_argument_parser()
-    # noinspection PyTypeChecker
-    args: ArgsNamespace = argument_parser.parse_args(sys.argv[1:])
+    ns: Namespace = argument_parser.parse_args()
+    args: ArgsNamespace = ArgsNamespace.from_args(ns)
     asyncio.run(run(args))
 
 

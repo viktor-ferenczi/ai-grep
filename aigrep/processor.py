@@ -1,5 +1,5 @@
 import asyncio
-import glob
+import fnmatch
 import json
 import mimetypes
 import os.path
@@ -295,21 +295,38 @@ class Processor:
         return original, True
 
     def find_files(self) -> Iterable[str]:
-        paths = self.args.paths
-
-        if self.args.glob:
-            yield from glob.glob(self.args.glob or '**', root_dir=os.getcwd(), recursive=self.args.recursive)
-        elif not paths:
-            paths = ['.']
-
-        for path in paths:
-            if os.path.isdir(path):
-                yield from glob.glob(os.path.join(path, '**'), root_dir=path, recursive=self.args.recursive)
+        for path in self.args.paths:
+            pattern = ''
+            if '*' in path or '?' in path:
+                top, pattern = os.path.split(path)
+            elif os.path.isdir(path):
+                top = path
+            elif os.path.isfile(path):
+                yield path
+                continue
             else:
-                yield from glob.glob(path, root_dir=os.path.dirname(path), recursive=self.args.recursive)
+                continue
+            yield from self.iter_files(top or '.', pattern)
+
+    def iter_files(self, top: str, pattern: str) -> Iterable[str]:
+        if self.args.recursive:
+            for dir_path, _, filenames in os.walk(top, followlinks=self.args.follow):
+                yield from self.iter_files_in_folder(dir_path, filenames, pattern)
+        else:
+            filenames = os.listdir(top)
+            yield from self.iter_files_in_folder(top, filenames, pattern)
+
+    def iter_files_in_folder(self, dir_path: str, filenames: List[str], pattern: str) -> Iterable[str]:
+        for filename in filenames:
+            if pattern and not fnmatch.fnmatch(filename, pattern):
+                continue
+            path = os.path.join(dir_path, filename)
+            if not os.path.isfile(path):
+                continue
+            yield path
 
     def is_valid_file(self, path: str) -> bool:
-        if not os.path.isfile(path) and not os.path.islink(path):
+        if os.path.isdir(path) or not os.path.isfile(path) and not os.path.islink(path):
             self.log_debug('SKIP_NOT_A_FILE', path=path)
             return False
 
