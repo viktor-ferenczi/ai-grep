@@ -213,8 +213,11 @@ class Processor:
                     else:
                         outputs = await self.model.generate(self.args.system, chunk.input, self.params)
 
-                output = self.select_valid_output(outputs)
-                if output is None:
+                total_cost = sum(cost for text, cost in outputs)
+
+                valid_outputs = list(self.keep_valid_output(text for text, cost in outputs))
+
+                if not valid_outputs:
                     retry = chunk.attempt < self.args.attempts
                     if retry:
                         self.log_debug('GENERATOR_RETRY', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
@@ -225,27 +228,28 @@ class Processor:
                         self.failure_count += 1
                     continue
 
-                text, cost = output
+                # Prefer the shortest valid output (likely that's the most concise)
+                valid_outputs.sort(key=lambda t: len(t))
+                text = valid_outputs[0]
+
                 chunk.output = text
                 chunk.successful = True
 
-                self.log_debug('GENERATOR_FINISHED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt, cost=cost)
+                self.log_debug('GENERATOR_FINISHED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt, cost=total_cost)
                 await self.output_queue.put(chunk)
 
-                self.cost += cost
+                self.cost += total_cost
                 if self.budget and self.cost > self.budget:
                     self.stop()
                     self.log_verbose('OVER_BUDGET', cost=self.cost, budget=self.budget)
             finally:
                 self.generation_count -= 1
 
-    def select_valid_output(self, outputs: List[Tuple[str, int]]) -> Optional[Tuple[str, int]]:
-        for output in outputs:
-            text, cost = output
+    def keep_valid_output(self, outputs: Iterable[str]) -> Iterable[str]:
+        for text in outputs:
             text, valid = self.verify_fix_generation(text)
             if valid:
-                return text, cost
-        return None
+                yield text
 
     def verify_fix_generation(self, text: str) -> Tuple[str, bool]:
         original = text
