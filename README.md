@@ -22,7 +22,23 @@ Chunks are processed in parallel in multiple LLM generations.
 aigrep -h
 ```
 
-TBD: Examples
+## Examples
+
+### Finding variables in source code
+
+```sh
+aigrep -v -w 500 -V json \
+-s "List the name of all variables used in methods and functions. 
+Include all member variables, arguments and local variables. 
+Write the names as a JSON list. List each variable only once. 
+Write the JSON on a single line. 
+Do NOT pretty format the JSON. 
+Do NOT include expressions or statements, only the variable names. 
+Do NOT write anything else. 
+Do NOT apoligize. 
+Do NOT explain." \ 
+*.py
+```
 
 ## Configuration
 
