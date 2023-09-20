@@ -10,7 +10,7 @@ Be factual, do not make any guesses. \
 Stick only to what is written here.' \
 Do NOT use any external sources. \
 Do NOT judge. \
-Do NOT apologize. \
+Do NOT apologise. \
 Do NOT refer to your knowledge cut-off date.'''
 
 DEFAULT_HEADER = '#AIGREP_RESULT(index={index!r}, path={path!r}, lineno={lineno!r}, lines={lines!r}, attempt={attempt!r})'

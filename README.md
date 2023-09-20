@@ -35,7 +35,7 @@ Write the JSON on a single line.
 Do NOT pretty format the JSON. 
 Do NOT include expressions or statements, only the variable names. 
 Do NOT write anything else. 
-Do NOT apoligize. 
+Do NOT apologise. 
 Do NOT explain." \ 
 *.py
 ```
@@ -56,7 +56,7 @@ You can also refer to a different configuration file: `-c your/config.toml`
 
 ### vLLM
 
-To start a vLLM server on `localhost:8000`:
+To start a [vLLM](https://vllm.readthedocs.io) server on `localhost:8000`:
 
 ```sh
 python -O -u -m vllm.entrypoints.api_server \

@@ -16,8 +16,10 @@ class ModelConfig:
     provider: str = 'vllm'
     address: str = 'http://127.0.0.1:8000/generate'
 
-    # Context and performance limits
+    # Context window size
     context: int = 4096
+
+    # Maximum number of parallel generations
     parallel: int = 32
 
     # Sampling parameters
