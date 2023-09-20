@@ -179,16 +179,17 @@ class Processor:
             # Store
             results[chunk.index - first_index] = chunk
 
+            # Output
             while not self.abort and results and results[0]:
-                result: Chunk = results.pop(0)
+                chunk: Chunk = results.pop(0)
                 first_index += 1
 
-                if result.successful:
+                if chunk.successful:
                     self.log_verbose('OUTPUT', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
                     if self.args.json:
-                        self.log_event('OUTPUT', **asdict(result))
+                        self.log_event('OUTPUT', **asdict(chunk))
                     else:
-                        print(result.output)
+                        print(chunk.output)
                 else:
                     self.log_verbose('FAILED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
 
@@ -230,9 +231,7 @@ class Processor:
 
                 # Prefer the shortest valid output (likely that's the most concise)
                 valid_outputs.sort(key=lambda t: len(t))
-                text = valid_outputs[0]
-
-                chunk.output = text
+                chunk.output = valid_outputs[0]
                 chunk.successful = True
 
                 self.log_debug('GENERATOR_FINISHED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt, cost=total_cost)
