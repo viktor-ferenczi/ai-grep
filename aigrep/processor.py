@@ -206,27 +206,26 @@ class Processor:
 
             self.generation_count += 1
             try:
-                self.log_debug('GENERATOR_ATTEMPT', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
+                total_cost = 0
+                for attempt in range(self.args.attempts):
+                    chunk.attempt = 1 + attempt
+                    self.log_debug('GENERATOR_ATTEMPT', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
 
-                async with self.semaphore:
-                    if self.dry:
-                        outputs = [('DRY RUN RESULT', 10) for _ in range(self.params.n)]
-                    else:
-                        outputs = await self.model.generate(self.args.system, chunk.input, self.params)
+                    async with self.semaphore:
+                        if self.dry:
+                            outputs = [(f'DRY RUN RESULT {1 + i}', 10) for i in range(self.params.n)]
+                        else:
+                            outputs = await self.model.generate(self.args.system, chunk.input, self.params)
 
-                total_cost = sum(cost for text, cost in outputs)
+                    total_cost += sum(cost for text, cost in outputs)
 
-                valid_outputs = list(self.keep_valid_output(text for text, cost in outputs))
-
-                if not valid_outputs:
-                    retry = chunk.attempt < self.args.attempts
-                    if retry:
-                        self.log_debug('GENERATOR_RETRY', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
-                        await self.input_queue.put(chunk)
-                    else:
-                        self.log_debug('GENERATOR_FAILED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
-                        await self.output_queue.put(chunk)
-                        self.failure_count += 1
+                    valid_outputs = list(self.keep_valid_output(text for text, cost in outputs))
+                    if valid_outputs or self.dry:
+                        break
+                else:
+                    self.log_debug('GENERATOR_FAILED', index=chunk.index, path=chunk.path, lineno=chunk.lineno, lines=chunk.lines, attempt=chunk.attempt)
+                    self.failure_count += 1
+                    await self.output_queue.put(chunk)
                     continue
 
                 # Prefer the shortest valid output (likely that's the most concise)
