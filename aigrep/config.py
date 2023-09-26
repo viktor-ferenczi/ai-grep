@@ -6,6 +6,19 @@ import toml
 
 from aigrep.prompt_templates import MAPPING
 
+DEFAULT_CONFIG_PATH = '~/.aigrep/config.toml'
+
+DEFAULT_SYSTEM = '''\
+You are a document processor. \
+Provide a concise summary of the text or code provided.
+Be factual, do not make any guesses. \
+Stick only to what is written here.' \
+Do NOT use any external sources. \
+Do NOT judge. \
+Do NOT apologise. \
+Do NOT refer to your knowledge cut-off date.'''
+
+DEFAULT_FORMAT = '#AIGREP:%s'
 
 @dataclass
 class ModelConfig:
