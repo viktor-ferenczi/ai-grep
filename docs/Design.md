@@ -26,6 +26,7 @@
       - Python string template
       - Custom
     - Validation rules
+      - Generation constraint
       - Common format: JSON, YAML, TOML
       - Pattern: RegExp, GLOB
       - Custom
