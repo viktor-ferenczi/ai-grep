@@ -7,6 +7,7 @@
   - Glob pattern support
   - Limit recursion depth
   - Optionally follow symlinks
+  - Infinite recursion protection
   - Support for exclusion patterns
 - For each file type
   - Conversion
@@ -25,8 +26,9 @@
       - Static text
       - Python string template
       - Custom
-    - Validation rules
-      - Generation constraint
+    - Constrained generation, validation
+      - Free 
+      - LMQL
       - Common format: JSON, YAML, TOML
       - Pattern: RegExp, GLOB
       - Custom

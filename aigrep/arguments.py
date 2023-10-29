@@ -57,7 +57,7 @@ def create_argument_parser():
     parser = ArgumentParser()
 
     g = parser.add_argument_group('Logging and output')
-    g.add_argument('--verbose', '-v', action='count', default=0, help='Verbose output (-vv for debug)')
+    g.add_argument('--verbose', '-v', action='count', default=0, help='Verbose output (-vv enables debug logging)')
     g.add_argument('--version', action='store_true', help='Writes out the version number and exit')
 
     g = parser.add_argument_group('Configuration')
