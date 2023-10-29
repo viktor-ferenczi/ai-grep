@@ -1,6 +1,4 @@
 # FIXME: Use the right tokenizer for the selected model
-import json
-import mimetypes
 from typing import List
 
 import tiktoken
