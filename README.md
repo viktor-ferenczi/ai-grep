@@ -1,6 +1,6 @@
 # AIGrep
 
-_Out of date, unmaintained project. Publishing it only for reference._
+_Out of date, unmaintained project. Published it only for reference._
 
 ## Overview
 
@@ -30,16 +30,12 @@ aigrep -h
 
 ```sh
 aigrep -v -w 500 -V json \
--s "List the name of all variables used in methods and functions. 
-Include all member variables, arguments and local variables. 
-Write the names as a JSON list. List each variable only once. 
-Write the JSON on a single line. 
-Do NOT pretty format the JSON. 
-Do NOT include expressions or statements, only the variable names. 
+-s "List the full name of all companies and their human representatives. 
+Write a comma separated list of the names on a single line.
 Do NOT write anything else. 
 Do NOT apologise. 
 Do NOT explain." \ 
-*.py
+*.txt
 ```
 
 ## Configuration
@@ -64,7 +60,7 @@ To start a [vLLM](https://vllm.readthedocs.io) server on `localhost:8000`:
 python -O -u -m vllm.entrypoints.api_server \
     --host=127.0.0.1 \
     --port=8000 \
-    --model=WizardLM/WizardCoder-Python-7B-V1.0 \
+    --model=meta-llama/Llama-2-7b \
     --tokenizer=hf-internal-testing/llama-tokenizer \
     --block-size=16 \
     --swap-space=8
@@ -79,7 +75,7 @@ To load the model into multiple (N) GPUs:
 
 To use a local folder with an already downloaded model:
 ```
---model=$HOME/models/WizardLM/WizardCoder-Python-7B-V1.0
+--model=$HOME/models/meta-llama/Llama-2-7b
 ```
 
 ## Library usage
