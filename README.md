@@ -1,5 +1,7 @@
 # AIGrep
 
+_Out of date, unmaintained project. Publishing it only for reference._
+
 ## Overview
 
 A grep like command line utility to work directly with textual data 
