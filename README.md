@@ -30,7 +30,8 @@ aigrep -h
 
 ```sh
 aigrep -v -w 500 -V json \
--s "List the full name of all companies and their human representatives. 
+-s "You are provided with a few legal documents.
+List the full name of all companies and their representatives mentioned in the documents.
 Write a comma separated list of the names on a single line.
 Do NOT write anything else. 
 Do NOT apologise. 
